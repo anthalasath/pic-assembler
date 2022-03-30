@@ -54,8 +54,8 @@ async function assemble(picturesByLayer: PicturePart[]): Promise<string> {
   return outputFile;
 }
 
-function getRandomCoordinate(backgroundDimension: number) {
-  return Math.round((Math.random() * backgroundDimension));
+function getRandomInteger(maxValue: number) {
+  return Math.round(Math.random() * maxValue);
 }
 
 async function main() {
@@ -64,7 +64,7 @@ async function main() {
     "https://icon-library.com/images/doge-icon/doge-icon-21.jpg"
   ].map(uri => {
     return {
-      position: { x:getRandomCoordinate(1920), y:getRandomCoordinate(1080) },
+      position: { x:getRandomInteger(1920), y:getRandomInteger(1080) },
       uri
     };
   });

@@ -2,16 +2,11 @@ import sharp from "sharp";
 import axios from "axios";
 import path from "path";
 import fs from "fs";
-
-interface Vector2 {
-  x: number
-  y: number
-}
-
-interface PicturePart {
-  position: Vector2
-  uri: string
-}
+import { BigNumberish, ethers } from "ethers";
+import BreedableNFTArtifact from "./nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
+import { BreedableNFT } from "./nft-maker/typechain-types";
+import { PictureStructOutput } from "./nft-maker/typechain-types/contracts/BreedableNFT";
+import { program } from "commander";
 
 async function download(fileUrl: string): Promise<string> {
   // Get the file name
@@ -42,10 +37,10 @@ async function download(fileUrl: string): Promise<string> {
   }
 }
 
-async function assemble(picturesByLayer: PicturePart[]): Promise<string> {
+async function assemble(picturesByLayer: PictureStructOutput[]): Promise<string> {
   const images = await Promise.all(picturesByLayer.map(async p => {
     const localFilePath = await download(p.uri);
-    return { input: localFilePath, top: p.position.y, left: p.position.x };
+    return { input: localFilePath, top: p.position.y.toNumber(), left: p.position.x.toNumber() };
   }));
   const outputFile = "output.png";
   await sharp("transparent_background.png")
@@ -54,21 +49,24 @@ async function assemble(picturesByLayer: PicturePart[]): Promise<string> {
   return outputFile;
 }
 
-function getRandomInteger(maxValue: number) {
-  return Math.round(Math.random() * maxValue);
+async function getPicture(breedableNFT: BreedableNFT, tokenId: BigNumberish): Promise<string> {
+  const creature = await breedableNFT.getCreature(tokenId);
+  const pictures: PictureStructOutput[] = await Promise.all(creature.genes.map((gene, i) => breedableNFT.getPicture(i, gene)));
+  return assemble(pictures);
 }
 
 async function main() {
-  const pictures = [
-    "https://pbs.twimg.com/profile_images/740982631496458241/wfpy6yvg_400x400.jpg",
-    "https://icon-library.com/images/doge-icon/doge-icon-21.jpg"
-  ].map(uri => {
-    return {
-      position: { x:getRandomInteger(1920), y:getRandomInteger(1080) },
-      uri
-    };
-  });
-  await assemble(pictures);
+  program
+    .option("-a", "--address <string>")
+    .option("-t", "--tokenId <number>");
+
+  program.parse();
+
+  const [address, tokenId] = program.args;
+  const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+  const breedableNFT = new ethers.Contract(address, BreedableNFTArtifact.abi, provider) as BreedableNFT;
+  await getPicture(breedableNFT, tokenId);
 }
 
 main().catch(console.error);
+

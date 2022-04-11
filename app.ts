@@ -8,6 +8,8 @@ import { BreedableNFT } from "./nft-maker/typechain-types";
 import { PictureStructOutput } from "./nft-maker/typechain-types/contracts/BreedableNFT";
 import { program } from "commander";
 
+require('dotenv').config();
+
 async function download(fileUrl: string): Promise<string> {
   // Get the file name
   const fileName = path.basename(fileUrl);
@@ -57,13 +59,14 @@ async function getPicture(breedableNFT: BreedableNFT, tokenId: BigNumberish): Pr
 
 async function main() {
   program
+    .option("-n", "--network <string>")
     .option("-a", "--address <string>")
     .option("-t", "--tokenId <number>");
 
   program.parse();
 
-  const [address, tokenId] = program.args;
-  const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+  const [network, address, tokenId] = program.args;
+  const provider = new ethers.providers.InfuraProvider(network, process.env.INFURA_PROJECT_ID);
   const breedableNFT = new ethers.Contract(address, BreedableNFTArtifact.abi, provider) as BreedableNFT;
   await getPicture(breedableNFT, tokenId);
 }

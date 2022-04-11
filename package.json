@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "getPicture": "ts-node app.ts",
+    "getPicture": "ts-node src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

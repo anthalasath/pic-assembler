@@ -1,6 +1,6 @@
 {
   "name": "pic-assembler",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Picture assembler fore breedable nfts",
   "main": "index.js",
   "scripts": {

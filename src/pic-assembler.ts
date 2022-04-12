@@ -16,7 +16,7 @@ async function download(fileUrl: string): Promise<string> {
     }
 
     // The path of the downloaded file on our machine
-    const localFilePath = path.resolve(__dirname, folder, fileName);
+    const localFilePath = path.resolve( __dirname, "..", folder, fileName);
     const response = await axios({
         method: 'GET',
         url: fileUrl,

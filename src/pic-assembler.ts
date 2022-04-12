@@ -6,14 +6,6 @@ import { BigNumberish } from "ethers";
 import { BreedableNFT } from "nft-maker/typechain-types/contracts/BreedableNFT";
 import { PictureStructOutput } from "nft-maker/typechain-types/contracts/BreedableNFT";
 
-function arrayBufferToBuffer(arrBuff: ArrayBuffer): Buffer {
-    const buf = Buffer.alloc(arrBuff.byteLength);
-    const uintArr = new Uint8Array(arrBuff);
-    for (let i = 0; i < buf.length; i++) {
-        buf[i] = uintArr[i];
-    }
-    return buf;
-}
 
 async function download(fileUrl: string): Promise<Buffer> {
     const response = await axios({
@@ -21,8 +13,13 @@ async function download(fileUrl: string): Promise<Buffer> {
         url: fileUrl,
         responseType: 'arraybuffer',
     });
-    const arrBuff: ArrayBuffer = response.data;
-    return arrayBufferToBuffer(arrBuff);
+    const arrBuff = response.data;
+    const buf = Buffer.alloc(arrBuff.byteLength);
+    const uintArr = new Uint8Array(arrBuff);
+    for (let i = 0; i < buf.length; i++) {
+        buf[i] = uintArr[i];
+    }
+    return buf;
 }
 
 async function assemble(picturesByLayer: PictureStructOutput[]): Promise<Buffer> {

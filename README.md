@@ -1,4 +1,4 @@
-Picture assembler for nfts
+Picture assembler for breedable nfts
 
 # TODO:
 

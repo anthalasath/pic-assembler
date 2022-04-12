@@ -33,19 +33,17 @@ async function download(fileUrl: string): Promise<Buffer> {
     return toBuffer(arrBuff);
 }
 
-async function assemble(picturesByLayer: PictureStructOutput[]): Promise<string> {
+async function assemble(picturesByLayer: PictureStructOutput[]): Promise<Buffer> {
     const images = await Promise.all(picturesByLayer.map(async p => {
         const buf = await download(p.uri);
         return { input: buf, top: p.position.y.toNumber(), left: p.position.x.toNumber() };
     }));
-    const outputFile = "output.png";
-    await sharp("transparent_background.png")
+    return sharp("transparent_background.png")
         .composite(images)
-        .toFile(outputFile);
-    return outputFile;
+        .toBuffer();
 }
 
-export async function getPicture(breedableNFT: BreedableNFT, tokenId: BigNumberish): Promise<string> {
+export async function getPicture(breedableNFT: BreedableNFT, tokenId: BigNumberish): Promise<Buffer> {
     const creature = await breedableNFT.getCreature(tokenId);
     const pictures: PictureStructOutput[] = await Promise.all(creature.genes.map((gene, i) => breedableNFT.getPicture(i, gene)));
     return assemble(pictures);

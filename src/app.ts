@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import BreedableNFTArtifact from "../nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
-import { BreedableNFT } from "../nft-maker/typechain-types";
+import BreedableNFTArtifact from "nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
+import { BreedableNFT } from "nft-maker/typechain-types";
 import { program } from "commander";
 import { getPicture } from "./pic-assembler";
 

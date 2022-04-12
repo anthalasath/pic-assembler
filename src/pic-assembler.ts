@@ -3,8 +3,8 @@ import axios from "axios";
 import path from "path";
 import fs from "fs";
 import { BigNumberish } from "ethers";
-import { BreedableNFT } from "../nft-maker/typechain-types";
-import { PictureStructOutput } from "../nft-maker/typechain-types/contracts/BreedableNFT";
+import { BreedableNFT } from "nft-maker/typechain-types/contracts/BreedableNFT";
+import { PictureStructOutput } from "nft-maker/typechain-types/contracts/BreedableNFT";
 
 async function download(fileUrl: string): Promise<string> {
     // Get the file name
@@ -17,22 +17,18 @@ async function download(fileUrl: string): Promise<string> {
 
     // The path of the downloaded file on our machine
     const localFilePath = path.resolve(__dirname, folder, fileName);
-    try {
-        const response = await axios({
-            method: 'GET',
-            url: fileUrl,
-            responseType: 'stream',
+    const response = await axios({
+        method: 'GET',
+        url: fileUrl,
+        responseType: 'stream',
+    });
+    const promise = new Promise<string>((res, rej) => {
+        const w = response.data.pipe(fs.createWriteStream(localFilePath));
+        w.on('finish', () => {
+            res(localFilePath);
         });
-        const promise = new Promise<string>((res, rej) => {
-            const w = response.data.pipe(fs.createWriteStream(localFilePath));
-            w.on('finish', () => {
-                res(localFilePath);
-            });
-        });
-        return promise;
-    } catch (err: any) {
-        throw new Error(err);
-    }
+    });
+    return promise;
 }
 
 async function assemble(picturesByLayer: PictureStructOutput[]): Promise<string> {

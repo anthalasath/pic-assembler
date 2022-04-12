@@ -16,14 +16,6 @@ function toBuffer(arrBuff: ArrayBuffer): Buffer {
 }
 
 async function download(fileUrl: string): Promise<Buffer> {
-    // Get the file name
-    const fileName = path.basename(fileUrl);
-    const folder = "download";
-
-    if (!fs.existsSync(folder)) {
-        fs.mkdirSync(folder);
-    }
-
     const response = await axios({
         method: 'GET',
         url: fileUrl,

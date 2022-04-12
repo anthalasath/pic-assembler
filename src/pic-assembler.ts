@@ -6,7 +6,16 @@ import { BigNumberish } from "ethers";
 import { BreedableNFT } from "nft-maker/typechain-types/contracts/BreedableNFT";
 import { PictureStructOutput } from "nft-maker/typechain-types/contracts/BreedableNFT";
 
-async function download(fileUrl: string): Promise<string> {
+function toBuffer(arrBuff: ArrayBuffer): Buffer {
+    const buf = Buffer.alloc(arrBuff.byteLength);
+    const uintArr = new Uint8Array(arrBuff);
+    for (let i = 0; i < buf.length; i++) {
+        buf[i] = uintArr[i];
+    }
+    return buf;
+}
+
+async function download(fileUrl: string): Promise<Buffer> {
     // Get the file name
     const fileName = path.basename(fileUrl);
     const folder = "download";
@@ -15,26 +24,19 @@ async function download(fileUrl: string): Promise<string> {
         fs.mkdirSync(folder);
     }
 
-    // The path of the downloaded file on our machine
-    const localFilePath = path.resolve( __dirname, "..", folder, fileName);
     const response = await axios({
         method: 'GET',
         url: fileUrl,
-        responseType: 'stream',
+        responseType: 'arraybuffer',
     });
-    const promise = new Promise<string>((res, rej) => {
-        const w = response.data.pipe(fs.createWriteStream(localFilePath));
-        w.on('finish', () => {
-            res(localFilePath);
-        });
-    });
-    return promise;
+    const arrBuff: ArrayBuffer = response.data;
+    return toBuffer(arrBuff);
 }
 
 async function assemble(picturesByLayer: PictureStructOutput[]): Promise<string> {
     const images = await Promise.all(picturesByLayer.map(async p => {
-        const localFilePath = await download(p.uri);
-        return { input: localFilePath, top: p.position.y.toNumber(), left: p.position.x.toNumber() };
+        const buf = await download(p.uri);
+        return { input: buf, top: p.position.y.toNumber(), left: p.position.x.toNumber() };
     }));
     const outputFile = "output.png";
     await sharp("transparent_background.png")

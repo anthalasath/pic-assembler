@@ -9,9 +9,9 @@ import { PictureStructOutput } from "nft-maker/typechain-types/contracts/Breedab
 
 async function download(fileUrl: string): Promise<Buffer> {
     const response = await axios({
-        method: 'GET',
+        method: "GET",
         url: fileUrl,
-        responseType: 'arraybuffer',
+        responseType: "arraybuffer",
     });
     const arrBuff = response.data;
     const buf = Buffer.alloc(arrBuff.byteLength);
